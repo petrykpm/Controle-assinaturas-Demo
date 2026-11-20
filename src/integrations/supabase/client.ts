@@ -22,12 +22,20 @@ function read<T>(key: string, fallback: T): T {
   catch { return fallback; }
 }
 function write(key: string, value: unknown) { localStorage.setItem(key, JSON.stringify(value)); }
+const SERVICE_URLS: Record<string, string> = {
+  'OpenAI API': 'https://openai.com', AWS: 'https://aws.amazon.com', Vercel: 'https://vercel.com',
+  Figma: 'https://figma.com', Slack: 'https://slack.com', GitHub: 'https://github.com',
+  'Anthropic API': 'https://anthropic.com', Stripe: 'https://stripe.com', Datadog: 'https://datadoghq.com',
+  Notion: 'https://notion.so', 'Adobe CC': 'https://adobe.com', Jira: 'https://atlassian.com/software/jira',
+  'Google Cloud': 'https://cloud.google.com', Twilio: 'https://twilio.com', HubSpot: 'https://hubspot.com',
+};
+
 function seed() {
   if (!localStorage.getItem(TABLE_KEYS.subscriptions)) {
     write(TABLE_KEYS.subscriptions, mockSubscriptions.map((s, i) => ({
       id: s.id, user_id: 'demo-user', name: s.name, category: s.category, value: s.value,
       billing_type: s.billingType, renewal_date: datePlus((i * 3 + 2) % 32),
-      status: s.status, responsible: s.responsible, notes: s.notes, url: '',
+      status: s.status, responsible: s.responsible, notes: s.notes, url: SERVICE_URLS[s.name] ?? '',
       risk_level: i === 8 ? 'medium' : 'low', acquisition_date: datePlus(-90 - i * 4),
       created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
     })));
