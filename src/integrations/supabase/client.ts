@@ -122,8 +122,11 @@ class LocalQuery {
     }
     return { data: rows, error: null };
   }
-  then(resolve: (value: any) => any, reject?: (reason: any) => any) {
-    return this.run().then(resolve, reject);
+  then<TResult1 = any, TResult2 = never>(
+    onfulfilled?: ((value: any) => TResult1 | PromiseLike<TResult1>) | null,
+    onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null,
+  ): Promise<TResult1 | TResult2> {
+    return this.run().then(onfulfilled as any, onrejected as any);
   }
 }
 
