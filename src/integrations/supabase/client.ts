@@ -31,6 +31,18 @@ const SERVICE_URLS: Record<string, string> = {
 };
 
 function seed() {
+  // Migra registros já salvos antes da inclusão dos endereços dos serviços.
+  const savedSubscriptions = read<Row[]>(TABLE_KEYS.subscriptions, []);
+  if (savedSubscriptions.length) {
+    let changed = false;
+    const migrated = savedSubscriptions.map(subscription => {
+      if (subscription.url?.trim() || !SERVICE_URLS[subscription.name]) return subscription;
+      changed = true;
+      return { ...subscription, url: SERVICE_URLS[subscription.name] };
+    });
+    if (changed) write(TABLE_KEYS.subscriptions, migrated);
+  }
+
   if (!localStorage.getItem(TABLE_KEYS.subscriptions)) {
     write(TABLE_KEYS.subscriptions, mockSubscriptions.map((s, i) => ({
       id: s.id, user_id: 'demo-user', name: s.name, category: s.category, value: s.value,
