@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { AppLayout } from '@/components/AppLayout';
 import { StatusBadge } from '@/components/StatusBadge';
+import { SubscriptionIcon } from '@/components/SubscriptionIcon';
 import {
   useSubscriptions, useCreateSubscription, useUpdateSubscription, useDeleteSubscription,
   useCategories, formatCurrency,
@@ -29,7 +30,7 @@ const statuses: { value: SubscriptionStatus; label: string }[] = [
 
 const emptyForm = {
   name: '', category: 'SaaS', value: 0, billing_type: 'monthly' as BillingType,
-  renewal_date: '', status: 'active' as SubscriptionStatus, responsible: '', notes: '',
+  renewal_date: '', status: 'active' as SubscriptionStatus, responsible: '', notes: '', url: '',
 };
 
 type SortKey = 'name' | 'value' | 'renewal_date' | 'category';
@@ -77,7 +78,7 @@ export default function SubscriptionsPage() {
       toast.error('Preencha todos os campos obrigatórios');
       return;
     }
-    const sanitized = { ...form, name: form.name.trim(), responsible: form.responsible.trim(), notes: form.notes.trim() };
+    const sanitized = { ...form, name: form.name.trim(), responsible: form.responsible.trim(), notes: form.notes.trim(), url: form.url.trim() };
     try {
       if (editingId) {
         await updateSub.mutateAsync({ id: editingId, ...sanitized });
@@ -99,7 +100,7 @@ export default function SubscriptionsPage() {
     setForm({
       name: sub.name, category: sub.category, value: sub.value,
       billing_type: sub.billing_type, renewal_date: sub.renewal_date,
-      status: sub.status, responsible: sub.responsible, notes: sub.notes,
+      status: sub.status, responsible: sub.responsible, notes: sub.notes, url: sub.url ?? '',
     });
     setEditingId(sub.id);
     setShowForm(true);
@@ -188,7 +189,7 @@ export default function SubscriptionsPage() {
                 {filtered.map(sub => (
                   <tr key={sub.id} className="border-b border-border last:border-0 hover:bg-surface-hover transition-colors">
                     <td className="px-4 py-3">
-                      <p className="text-sm font-medium text-foreground">{sub.name}</p>
+                      <div className="flex items-center gap-2"><SubscriptionIcon url={sub.url} name={sub.name} size="md" /><p className="text-sm font-medium text-foreground">{sub.name}</p></div>
                       <p className="text-xs text-muted-foreground">{sub.responsible}</p>
                     </td>
                     <td className="px-4 py-3"><span className="text-xs text-muted-foreground bg-surface-3 rounded px-2 py-0.5">{sub.category}</span></td>
@@ -256,6 +257,10 @@ export default function SubscriptionsPage() {
               <div>
                 <Label className="text-muted-foreground text-xs">Responsável</Label>
                 <Input value={form.responsible} onChange={e => setForm(f => ({ ...f, responsible: e.target.value }))} className="mt-1 bg-surface-2 border-border" />
+              </div>
+              <div className="col-span-2">
+                <Label className="text-muted-foreground text-xs">Site do serviço (para buscar o ícone)</Label>
+                <Input type="url" placeholder="https://exemplo.com" value={form.url} onChange={e => setForm(f => ({ ...f, url: e.target.value }))} className="mt-1 bg-surface-2 border-border" />
               </div>
               <div className="col-span-2">
                 <Label className="text-muted-foreground text-xs">Observações</Label>
